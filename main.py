@@ -1,4 +1,6 @@
 from pydriller import * 
+import subprocess
+
 from config import git_repo
 
 # CONSTANTS
@@ -17,7 +19,10 @@ def IsSourceFile(filename):
 
     return is_src
 
-
+# get srcML of file
+def GetSRCML(source, filetype):
+    result = subprocess.run(['srcml', '-t', source, '-l', filetype])
+    return result.stdout
 
 ## MAIN ###
 
@@ -31,7 +36,7 @@ for commit in RepositoryMining(git_repo).traverse_commits():
 
         if IsSourceFile(m.filename): #Determine if the file is a source file or not
             print(m.filename + " " + str(m.change_type))
-            #print(m.source_code)
+            print(GetSRCML(m.source_code, 'C'))
 
             # In here, we can parse the code for style changes.
             # was thinking that instead of parsing the same text over and over again,
