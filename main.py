@@ -1,6 +1,9 @@
+# Other libraries
 from pydriller import * 
 import subprocess
+import xml.etree.ElementTree as ET
 
+# Our imports
 from config import git_repo
 
 # CONSTANTS
@@ -21,8 +24,9 @@ def IsSourceFile(filename):
 
 # get srcML of file
 def GetSRCML(source, filetype):
-    result = subprocess.run(['srcml', '-t', source, '-l', filetype])
-    return result.stdout
+    result = subprocess.Popen(['srcml', '-X', '-t', source, '-l', filetype], stdout=subprocess.PIPE)
+    tmp = result.stdout.read()
+    return tmp
 
 ## MAIN ###
 
@@ -36,7 +40,12 @@ for commit in RepositoryMining(git_repo).traverse_commits():
 
         if IsSourceFile(m.filename): #Determine if the file is a source file or not
             print(m.filename + " " + str(m.change_type))
-            print(GetSRCML(m.source_code, 'C'))
+            xml_string = GetSRCML(m.source_code, 'C')
+    
+            xml = ET.fromstring(xml_string)
+
+            for x in xml.findall('.//{http://www.srcML.org/srcML/src}if'):
+                print(x.tag, x.attrib)
 
             # In here, we can parse the code for style changes.
             # was thinking that instead of parsing the same text over and over again,
@@ -45,4 +54,3 @@ for commit in RepositoryMining(git_repo).traverse_commits():
             # (number of times they put '{' on the same line as 'if', # of times tabs is used, etc)
 
     print()
-
