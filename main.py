@@ -38,6 +38,8 @@ def GetSRCML(source, filetype):
 prj_num_of_lines        = 0
 prj_total_line_length   = 0
 
+variable_names          = []
+
 gr = GitRepository(git_repo)
 
 # Outer loop that steps through commits
@@ -68,14 +70,16 @@ for commit in RepositoryMining(git_repo).traverse_commits():
             xml = minidom.parseString(xml_string)
 
             unit = xml.documentElement
-            ifs = unit.getElementsByTagName("if")
+            declarations = unit.getElementsByTagName("decl")
 
-            #for x in ifs:
-                #for child in x.childNodes:
-                    #if(child.nodeType != child.TEXT_NODE):
-                        #print(child.tagName)
-                    #if(child.nodeType == child.TEXT_NODE):
-                        #print(child.nodeValue)
+            for x in declarations:
+                for child in x.childNodes:
+                    if(child.nodeType != child.TEXT_NODE):
+                        if(child.tagName == 'name'):
+                            for y in child.childNodes: # get variable name
+                                if(y.nodeValue != None):
+                                    variable_names.append(y.nodeValue)
+
                     
             # In here, we can parse the code for style changes.
             # was thinking that instead of parsing the same text over and over again,
@@ -87,4 +91,5 @@ for commit in RepositoryMining(git_repo).traverse_commits():
     print("Commit " + str(counter) + "\n")
     print("LOC: " + str(prj_num_of_lines))
     print("Average Line Length: " + str(prj_total_line_length / prj_num_of_lines))
+    print("Variable names: ", variable_names)
     print()
