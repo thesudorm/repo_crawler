@@ -57,16 +57,22 @@ def GetVariableNamesFromSRCML(xml_string):
 prj_num_of_lines        = 0
 prj_total_line_length   = 0
 
-variable_names          = []
-
 gr = GitRepository(git_repo)
 
 # Outer loop that steps through commits
 for commit in RepositoryMining(git_repo).traverse_commits():
+    print("Commit " + str(counter) + "\n")
+
     counter = counter + 1
+    added_source_code = ''
+    deleted_source_code = ''
+    added_variable_names    = []
+    deleted_variable_names   = []
 
     # Inner loops that steps trough each modification in the current commit
     for m in commit.modifications:
+        print(m.filename)
+
         if IsSourceFile(m.filename): 
 
             # Calculate line length
@@ -78,16 +84,20 @@ for commit in RepositoryMining(git_repo).traverse_commits():
                 if(x[1] != ''):
                     prj_num_of_lines += 1
                     prj_total_line_length += len(x[1])
+                    added_source_code += x[1] + '\n'
 
             for x in deleted:
                 if(x[1] != ''):
                     prj_num_of_lines -= 1
                     prj_total_line_length -= len(x[1])
+                    deleted_source_code += x[1] + '\n'
 
             #srcml stuff
-            xml_string = GetSRCML(m.source_code, 'C')
+            added_xml = GetSRCML(added_source_code, 'C')
+            deleted_xml = GetSRCML(deleted_source_code, 'C')
 
-            variable_names = GetVariableNamesFromSRCML(xml_string)
+            added_variable_names = GetVariableNamesFromSRCML(added_xml)
+            deleted_variable_names = GetVariableNamesFromSRCML(deleted_xml)
                     
             # In here, we can parse the code for style changes.
             # was thinking that instead of parsing the same text over and over again,
@@ -96,8 +106,8 @@ for commit in RepositoryMining(git_repo).traverse_commits():
             # (number of times they put '{' on the same line as 'if', # of times tabs is used, etc)
 
 
-    print("Commit " + str(counter) + "\n")
     print("LOC: " + str(prj_num_of_lines))
     print("Average Line Length: " + str(prj_total_line_length / prj_num_of_lines))
-    print("Variable names: ", variable_names)
+    print("Added Variable names: ", added_variable_names)
+    print("Removed Variable names: ", deleted_variable_names)
     print()
