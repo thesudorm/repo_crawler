@@ -32,6 +32,25 @@ def GetSRCML(source, filetype):
     tmp = result.stdout.read()
     return tmp
 
+def GetVariableNamesFromSRCML(xml_string):
+    toReturn = []
+
+    xml = minidom.parseString(xml_string)
+
+    unit = xml.documentElement
+    declarations = unit.getElementsByTagName("decl_stmt")
+
+    for x in declarations:
+        decl = x.childNodes
+        for child in decl[0].childNodes:
+            if(child.nodeType != child.TEXT_NODE):
+                if(child.tagName == 'name'):
+                    for y in child.childNodes: # get variable name
+                        if(y.nodeValue != None):
+                            toReturn.append(y.nodeValue)
+    return toReturn
+    
+
 ## MAIN ###
 
 # Variables for tracking entire project
@@ -67,19 +86,8 @@ for commit in RepositoryMining(git_repo).traverse_commits():
 
             #srcml stuff
             xml_string = GetSRCML(m.source_code, 'C')
-            xml = minidom.parseString(xml_string)
 
-            unit = xml.documentElement
-            declarations = unit.getElementsByTagName("decl")
-
-            for x in declarations:
-                for child in x.childNodes:
-                    if(child.nodeType != child.TEXT_NODE):
-                        if(child.tagName == 'name'):
-                            for y in child.childNodes: # get variable name
-                                if(y.nodeValue != None):
-                                    variable_names.append(y.nodeValue)
-
+            variable_names = GetVariableNamesFromSRCML(xml_string)
                     
             # In here, we can parse the code for style changes.
             # was thinking that instead of parsing the same text over and over again,
