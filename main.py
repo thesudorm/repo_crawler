@@ -61,9 +61,9 @@ gr = GitRepository(git_repo)
 
 # Outer loop that steps through commits
 for commit in RepositoryMining(git_repo).traverse_commits():
+    counter = counter + 1
     print("Commit " + str(counter) + "\n")
 
-    counter = counter + 1
     added_source_code = ''
     deleted_source_code = ''
     added_variable_names    = []
