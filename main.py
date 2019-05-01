@@ -62,6 +62,7 @@ gr = GitRepository(git_repo)
 for commit in RepositoryMining(git_repo).traverse_commits():
     counter = counter + 1
     print("Commit " + str(counter) + "\n")
+    print("Hash " + commit.hash)
 
     added_source_code = ''
     deleted_source_code = ''
@@ -79,20 +80,22 @@ for commit in RepositoryMining(git_repo).traverse_commits():
             added = parsed_lines['added']
             deleted = parsed_lines['deleted']
 
-            added_file = open("added.txt","w")
-            deleted_file = open("deleted.txt","w")
+            added_file = open("added.c","w")
+            deleted_file = open("deleted.c","w")
 
             for x in added:
                 if(x[1] != ''):
                     prj_num_of_lines += 1
                     prj_total_line_length += len(x[1])
                     added_file.write(x[1])
+                    added_file.write('\n')
 
             for x in deleted:
                 if(x[1] != ''):
                     prj_num_of_lines -= 1
                     prj_total_line_length -= len(x[1])
                     deleted_file.write(x[1])
+                    deleted_file.write('\n')
 
             #srcml stuff
             added_xml = GetSRCML("added.txt", 'C')
