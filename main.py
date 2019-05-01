@@ -28,9 +28,8 @@ def IsSourceFile(filename):
 
 # get srcML of file
 def GetSRCML(source, filetype):
-    result = subprocess.Popen(['srcml', '-X', '-t', source, '-l', filetype], stdout=subprocess.PIPE)
-    tmp = result.stdout.read()
-    return tmp
+    result = subprocess.check_output(['srcml', '-X',  source, '-l', filetype])
+    return result
 
 def GetVariableNamesFromSRCML(xml_string):
     toReturn = []
@@ -80,21 +79,24 @@ for commit in RepositoryMining(git_repo).traverse_commits():
             added = parsed_lines['added']
             deleted = parsed_lines['deleted']
 
+            added_file = open("added.txt","w")
+            deleted_file = open("deleted.txt","w")
+
             for x in added:
                 if(x[1] != ''):
                     prj_num_of_lines += 1
                     prj_total_line_length += len(x[1])
-                    added_source_code += x[1] + '\n'
+                    added_file.write(x[1])
 
             for x in deleted:
                 if(x[1] != ''):
                     prj_num_of_lines -= 1
                     prj_total_line_length -= len(x[1])
-                    deleted_source_code += x[1] + '\n'
+                    deleted_file.write(x[1])
 
             #srcml stuff
-            added_xml = GetSRCML(added_source_code, 'C')
-            deleted_xml = GetSRCML(deleted_source_code, 'C')
+            added_xml = GetSRCML("added.txt", 'C')
+            deleted_xml = GetSRCML("deleted.txt", 'C')
 
             added_variable_names = GetVariableNamesFromSRCML(added_xml)
             deleted_variable_names = GetVariableNamesFromSRCML(deleted_xml)
@@ -107,7 +109,8 @@ for commit in RepositoryMining(git_repo).traverse_commits():
 
 
     print("LOC: " + str(prj_num_of_lines))
-    print("Average Line Length: " + str(prj_total_line_length / prj_num_of_lines))
+    if(prj_num_of_lines > 0):
+        print("Average Line Length: " + str(prj_total_line_length / prj_num_of_lines))
     print("Added Variable names: ", added_variable_names)
     print("Removed Variable names: ", deleted_variable_names)
     print()
