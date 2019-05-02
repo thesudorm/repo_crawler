@@ -98,8 +98,8 @@ for commit in RepositoryMining(git_repo).traverse_commits():
                     deleted_file.write('\n')
 
             #srcml stuff
-            added_xml = GetSRCML("added.txt", 'C')
-            deleted_xml = GetSRCML("deleted.txt", 'C')
+            added_xml = GetSRCML("added.c", 'C')
+            deleted_xml = GetSRCML("deleted.c", 'C')
 
             added_variable_names = GetVariableNamesFromSRCML(added_xml)
             deleted_variable_names = GetVariableNamesFromSRCML(deleted_xml)
