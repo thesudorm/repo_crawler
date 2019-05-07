@@ -50,11 +50,12 @@ def GetVariableNamesFromSRCML(xml_string):
 
 # Determines if a string is in camelCase or not
 def IsCamelCase(s):
-    return s != s.lower() and s != s.upper() and "_" not in s
+    return s != s.lower() and s != s.upper() and "_" not in s and s[0] != s[0].upper()
 
 # Determines if a string is in snake_case or not
 def IsSnakeCase(s):
     return s.find('_') > 0 and s[-1] != '_'
+
 
 ## MAIN ###
 
