@@ -8,6 +8,14 @@ from xml.parsers.expat import ExpatError
 # Our imports
 from config import git_repo
 
+import os
+
+if os.path.exists('added.c'):
+    os.remove('added.c')
+
+if os.path.exists('deleted.c'):
+    os.remove('deleted.c')
+
 # CONSTANTS
 SRC_FILES = ["js", "c", "py", "rb"]
 
@@ -23,7 +31,6 @@ def IsSourceFile(filename):
         file_extention = m.filename.split(".")[1]
         if file_extention in SRC_FILES:
             is_src = True
-
     return is_src
 
 # get srcML of file
@@ -48,40 +55,53 @@ def GetVariableNamesFromSRCML(xml_string):
                         if(y.nodeValue != None):
                             toReturn.append(y.nodeValue)
     return toReturn
-    
+
+# Determines if a string is in camelCase or not
+def IsCamelCase(s):
+    return s != s.lower() and s != s.upper() and "_" not in s and s[0] != s[0].upper()
+
+# Determines if a string is in snake_case or not
+def IsSnakeCase(s):
+    return s.find('_') > 0 and s[-1] != '_'
+
 
 ## MAIN ###
 
 # Variables for tracking entire project
 prj_num_of_lines        = 0
+prj_num_of_vars         = 0
 prj_total_line_length   = 0
+prj_camel_case          = 0
+prj_snake_case          = 0
 
 gr = GitRepository(git_repo)
 
 # Outer loop that steps through commits
 for commit in RepositoryMining(git_repo).traverse_commits():
     counter = counter + 1
-    print("Commit " + str(counter) + "\n")
-    print("Hash " + commit.hash)
+    print('~~~~~~~~~~~~~~~~~~~~~~~~~~')
+    print("Commit " + str(counter))
+    print("Hash " + commit.hash + '\n')
 
     added_source_code = ''
     deleted_source_code = ''
     added_variable_names    = []
     deleted_variable_names   = []
+    num_snake_case = 0
+    num_camel_case = 0
 
     # Inner loops that steps trough each modification in the current commit
     for m in commit.modifications:
-        print(m.filename)
-
         if IsSourceFile(m.filename): 
+            print(m.filename)
 
             # Calculate line length
             parsed_lines = gr.parse_diff(m.diff)
             added = parsed_lines['added']
             deleted = parsed_lines['deleted']
 
-            added_file = open("added.c","w")
-            deleted_file = open("deleted.c","w")
+            added_file = open("added.c","w+")
+            deleted_file = open("deleted.c","w+")
 
             for x in added:
                 if(x[1] != ''):
@@ -103,6 +123,25 @@ for commit in RepositoryMining(git_repo).traverse_commits():
 
             added_variable_names = GetVariableNamesFromSRCML(added_xml)
             deleted_variable_names = GetVariableNamesFromSRCML(deleted_xml)
+
+            for added in added_variable_names:
+                prj_num_of_vars += 1
+                if IsCamelCase(added):
+                    prj_camel_case += 1
+                    print("Camel: " + added)
+                elif IsSnakeCase(added):
+                    prj_snake_case += 1
+                    print("Snake: " + added)
+
+            for deleted in deleted_variable_names:
+                prj_num_of_vars -= 1
+                if IsCamelCase(deleted):
+                    prj_camel_case -= 1
+                    print("Camel: " + deleted)
+                elif IsSnakeCase(deleted):
+                    prj_snake_case -= 1
+                    print("Snake: " + deleted)
+                    
                     
             # In here, we can parse the code for style changes.
             # was thinking that instead of parsing the same text over and over again,
@@ -114,6 +153,7 @@ for commit in RepositoryMining(git_repo).traverse_commits():
     print("LOC: " + str(prj_num_of_lines))
     if(prj_num_of_lines > 0):
         print("Average Line Length: " + str(prj_total_line_length / prj_num_of_lines))
-    print("Added Variable names: ", added_variable_names)
-    print("Removed Variable names: ", deleted_variable_names)
+    print("Number of Variables: ", prj_num_of_vars)
+    print("Number of Snake Case Vars: ", prj_snake_case)
+    print("Number of Camel Case Vars: ", prj_camel_case)
     print()
