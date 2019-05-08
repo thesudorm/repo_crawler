@@ -27,8 +27,8 @@ def IsSourceFile(filename):
     return is_src
 
 # get srcML of file
-def GetSRCML(source, filetype):
-    result = subprocess.check_output(['srcml', '-X',  source, '-l', filetype])
+def GetSRCML(source):
+    result = subprocess.check_output(['srcml', source])
     return result
 
 def GetVariableNamesFromSRCML(xml_string):
@@ -98,8 +98,8 @@ for commit in RepositoryMining(git_repo).traverse_commits():
                     deleted_file.write('\n')
 
             #srcml stuff
-            added_xml = GetSRCML("added.txt", 'C')
-            deleted_xml = GetSRCML("deleted.txt", 'C')
+            added_xml = GetSRCML("added.c")
+            deleted_xml = GetSRCML("deleted.c")
 
             added_variable_names = GetVariableNamesFromSRCML(added_xml)
             deleted_variable_names = GetVariableNamesFromSRCML(deleted_xml)
