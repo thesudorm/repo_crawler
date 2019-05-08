@@ -8,6 +8,14 @@ from xml.parsers.expat import ExpatError
 # Our imports
 from config import git_repo
 
+import os
+
+if os.path.exists('added.c'):
+    os.remove('added.c')
+
+if os.path.exists('deleted.c'):
+    os.remove('deleted.c')
+
 # CONSTANTS
 SRC_FILES = ["js", "c", "py", "rb"]
 
@@ -26,8 +34,8 @@ def IsSourceFile(filename):
     return is_src
 
 # get srcML of file
-def GetSRCML(source, filetype):
-    result = subprocess.check_output(['srcml', '-X',  source, '-l', filetype])
+def GetSRCML(source):
+    result = subprocess.check_output(['srcml', source])
     return result
 
 def GetVariableNamesFromSRCML(xml_string):
@@ -92,8 +100,8 @@ for commit in RepositoryMining(git_repo).traverse_commits():
             added = parsed_lines['added']
             deleted = parsed_lines['deleted']
 
-            added_file = open("added.c","w")
-            deleted_file = open("deleted.c","w")
+            added_file = open("added.c","w+")
+            deleted_file = open("deleted.c","w+")
 
             for x in added:
                 if(x[1] != ''):
@@ -110,8 +118,8 @@ for commit in RepositoryMining(git_repo).traverse_commits():
                     deleted_file.write('\n')
 
             #srcml stuff
-            added_xml = GetSRCML("added.c", 'C')
-            deleted_xml = GetSRCML("deleted.c", 'C')
+            added_xml = GetSRCML("added.c")
+            deleted_xml = GetSRCML("deleted.c")
 
             added_variable_names = GetVariableNamesFromSRCML(added_xml)
             deleted_variable_names = GetVariableNamesFromSRCML(deleted_xml)
@@ -123,6 +131,7 @@ for commit in RepositoryMining(git_repo).traverse_commits():
                     print("Camel: " + added)
                 elif IsSnakeCase(added):
                     prj_snake_case += 1
+                    print("Snake: " + added)
 
             for deleted in deleted_variable_names:
                 prj_num_of_vars -= 1
@@ -131,6 +140,7 @@ for commit in RepositoryMining(git_repo).traverse_commits():
                     print("Camel: " + deleted)
                 elif IsSnakeCase(deleted):
                     prj_snake_case -= 1
+                    print("Snake: " + deleted)
                     
                     
             # In here, we can parse the code for style changes.
