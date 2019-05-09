@@ -1,20 +1,13 @@
 # Other libraries
 from pydriller import * 
 import subprocess
+import os
 
 from xml.dom import minidom
 from xml.parsers.expat import ExpatError
 
 # Our imports
 from config import git_repo
-
-import os
-
-if os.path.exists('added.c'):
-    os.remove('added.c')
-
-if os.path.exists('deleted.c'):
-    os.remove('deleted.c')
 
 # CONSTANTS
 SRC_FILES = ["js", "c", "py", "rb"]
@@ -67,6 +60,14 @@ def IsSnakeCase(s):
 
 ## MAIN ###
 
+# Creating files and directories
+current_dir = os.path.dirname(os.path.abspath(__file__)) + "/data"
+added_file_name = current_dir + "/added.c"
+deleted_file_name = current_dir + "/deleted.c"
+
+if not os.path.exists(current_dir):
+    os.makedirs(current_path)
+
 # Variables for tracking entire project
 prj_num_of_lines        = 0
 prj_num_of_vars         = 0
@@ -95,13 +96,19 @@ for commit in RepositoryMining(git_repo).traverse_commits():
         if IsSourceFile(m.filename): 
             print(m.filename)
 
+            temp = open(added_file_name, 'w')
+            temp.close()
+
+            temp = open(deleted_file_name, 'w')
+            temp.close()
+
+            added_file = open(added_file_name, "r+")
+            deleted_file = open(deleted_file_name,"r+")
+
             # Calculate line length
             parsed_lines = gr.parse_diff(m.diff)
             added = parsed_lines['added']
             deleted = parsed_lines['deleted']
-
-            added_file = open("added.c","w+")
-            deleted_file = open("deleted.c","w+")
 
             for x in added:
                 if(x[1] != ''):
@@ -117,15 +124,20 @@ for commit in RepositoryMining(git_repo).traverse_commits():
                     deleted_file.write(x[1])
                     deleted_file.write('\n')
 
+            added_file.close()
+            deleted_file.close()
+                    
             #srcml stuff
-            added_xml = GetSRCML("added.c")
-            deleted_xml = GetSRCML("deleted.c")
+            added_xml = GetSRCML(added_file_name)
+            deleted_xml = GetSRCML(deleted_file_name)
 
             added_variable_names = GetVariableNamesFromSRCML(added_xml)
             deleted_variable_names = GetVariableNamesFromSRCML(deleted_xml)
 
             for added in added_variable_names:
                 prj_num_of_vars += 1
+                print("Added:", added)
+
                 if IsCamelCase(added):
                     prj_camel_case += 1
                     print("Camel: " + added)
@@ -135,19 +147,14 @@ for commit in RepositoryMining(git_repo).traverse_commits():
 
             for deleted in deleted_variable_names:
                 prj_num_of_vars -= 1
+                print("Deleted:", deleted)
+
                 if IsCamelCase(deleted):
                     prj_camel_case -= 1
                     print("Camel: " + deleted)
                 elif IsSnakeCase(deleted):
                     prj_snake_case -= 1
                     print("Snake: " + deleted)
-                    
-                    
-            # In here, we can parse the code for style changes.
-            # was thinking that instead of parsing the same text over and over again,
-            # that we instead look at the modifications. With each modification, we can
-            # add or subtract the number of times the author uses a certain style
-            # (number of times they put '{' on the same line as 'if', # of times tabs is used, etc)
 
 
     print("LOC: " + str(prj_num_of_lines))
