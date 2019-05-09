@@ -66,7 +66,7 @@ added_file_name = current_dir + "/added.c"
 deleted_file_name = current_dir + "/deleted.c"
 
 if not os.path.exists(current_dir):
-    os.makedirs(current_path)
+    os.makedirs(current_dir)
 
 # Variables for tracking entire project
 prj_num_of_lines        = 0
