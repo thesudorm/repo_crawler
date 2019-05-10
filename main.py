@@ -9,12 +9,6 @@ from xml.parsers.expat import ExpatError
 # Our imports
 from config import git_repo
 
-# CONSTANTS
-SRC_FILES = ["js", "c", "py", "rb"]
-
-# Globals
-counter = 0
-
 #### Helper functions
 
 #Takes a file name as an input and determines if it is a source file or not
@@ -57,8 +51,13 @@ def IsCamelCase(s):
 def IsSnakeCase(s):
     return s.find('_') > 0 and s[-1] != '_'
 
-
 ## MAIN ###
+
+# CONSTANTS
+SRC_FILES = ["c", "cpp", "java"]
+
+# Globals
+counter = 0
 
 # Creating files and directories
 current_dir = os.path.dirname(os.path.abspath(__file__)) + "/data"
@@ -66,7 +65,7 @@ added_file_name = current_dir + "/added.c"
 deleted_file_name = current_dir + "/deleted.c"
 
 if not os.path.exists(current_dir):
-    os.makedirs(current_path)
+    os.makedirs(current_dir)
 
 # Variables for tracking entire project
 prj_num_of_lines        = 0
@@ -74,6 +73,9 @@ prj_num_of_vars         = 0
 prj_total_line_length   = 0
 prj_camel_case          = 0
 prj_snake_case          = 0
+prj_lines_tabs_indent   = 0
+prj_lines_space_indent  = 0
+prj_lines_mixed_indent  = 0
 
 gr = GitRepository(git_repo)
 
@@ -84,12 +86,15 @@ for commit in RepositoryMining(git_repo).traverse_commits():
     print("Commit " + str(counter))
     print("Hash " + commit.hash + '\n')
 
-    added_source_code = ''
-    deleted_source_code = ''
+    added_source_code       = ''
+    deleted_source_code     = ''
     added_variable_names    = []
-    deleted_variable_names   = []
-    num_snake_case = 0
-    num_camel_case = 0
+    deleted_variable_names  = []
+    num_snake_case          = 0
+    num_camel_case          = 0
+    num_tabs_indent         = 0
+    num_spaces_indent       = 0
+    num_mixed_indent        = 0
 
     # Inner loops that steps trough each modification in the current commit
     for m in commit.modifications:
