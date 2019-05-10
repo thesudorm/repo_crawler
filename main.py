@@ -52,18 +52,15 @@ def IsSnakeCase(s):
     return s.find('_') > 0 and s[-1] != '_'
 
 def CountLeadingSpaces(s):
-    return len(s) - len(a.lstrip(' '))
+    return len(s) - len(s.lstrip(' '))
 
 def CountLeadingTabs(s):
-    return len(s) - len(a.lstrip('\t'))
+    return len(s) - len(s.lstrip('\t'))
 
 ## MAIN ###
 
 # CONSTANTS
 SRC_FILES = ["c", "cpp", "java"]
-
-# Globals
-counter = 0
 
 # Creating files and directories
 current_dir = os.path.dirname(os.path.abspath(__file__)) + "/data"
@@ -74,6 +71,7 @@ if not os.path.exists(current_dir):
     os.makedirs(current_dir)
 
 # Variables for tracking entire project
+counter = 0
 prj_num_of_lines        = 0
 prj_num_of_vars         = 0
 prj_total_line_length   = 0
@@ -123,6 +121,17 @@ for commit in RepositoryMining(git_repo).traverse_commits():
 
             for x in added:
                 if(x[1] != ''):
+                    # Determine indentation
+                    num_leading_spaces = CountLeadingSpaces(x[1])
+                    num_leading_tabs   = CountLeadingTabs(x[1])
+
+                    if(num_leading_spaces > 0 and num_leading_tabs == 0):
+                        prj_lines_space_indent += 1 
+                    elif(num_leading_spaces == 0 and num_leading_tabs > 0):
+                        prj_lines_tabs_indent += 1 
+                    elif(num_leading_spaces > 0 and num_leading_tabs > 0):
+                        prj_lines_mixed_indent += 1
+                        
                     prj_num_of_lines += 1
                     prj_total_line_length += len(x[1])
                     added_file.write(x[1])
@@ -130,6 +139,17 @@ for commit in RepositoryMining(git_repo).traverse_commits():
 
             for x in deleted:
                 if(x[1] != ''):
+                    # Determine indentation
+                    num_leading_spaces = CountLeadingSpaces(x[1])
+                    num_leading_tabs   = CountLeadingTabs(x[1])
+
+                    if(num_leading_spaces > 0 and num_leading_tabs == 0):
+                        prj_lines_space_indent -= 1 
+                    elif(num_leading_spaces == 0 and num_leading_tabs > 0):
+                        prj_lines_tabs_indent -= 1 
+                    elif(num_leading_spaces > 0 and num_leading_tabs > 0):
+                        prj_lines_mixed_indent -= 1
+
                     prj_num_of_lines -= 1
                     prj_total_line_length -= len(x[1])
                     deleted_file.write(x[1])
@@ -174,4 +194,7 @@ for commit in RepositoryMining(git_repo).traverse_commits():
     print("Number of Variables: ", prj_num_of_vars)
     print("Number of Snake Case Vars: ", prj_snake_case)
     print("Number of Camel Case Vars: ", prj_camel_case)
+    print("Number of Lines Indented With Tabs: ", prj_lines_tabs_indent)
+    print("Number of Lines Indented With Spaces: ", prj_lines_space_indent)
+    print("Number of Lines With Mixed Indent: ", prj_lines_mixed_indent)
     print()
