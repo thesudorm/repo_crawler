@@ -51,15 +51,12 @@ def IsCamelCase(s):
 def IsSnakeCase(s):
     return s.find('_') > 0 and s[-1] != '_'
 
-<<<<<<< HEAD
-=======
 def CountLeadingSpaces(s):
     return len(s) - len(a.lstrip(' '))
 
 def CountLeadingTabs(s):
     return len(s) - len(a.lstrip('\t'))
 
->>>>>>> 9ae8cca0b4de7047d852c8827df89b8ab6964c2b
 ## MAIN ###
 
 # CONSTANTS
@@ -98,16 +95,12 @@ for commit in RepositoryMining(git_repo).traverse_commits():
     added_source_code       = ''
     deleted_source_code     = ''
     added_variable_names    = []
-<<<<<<< HEAD
     deleted_variable_names  = []
     num_snake_case          = 0
     num_camel_case          = 0
     num_tabs_indent         = 0
     num_spaces_indent       = 0
     num_mixed_indent        = 0
-=======
-    deleted_variable_names   = []
->>>>>>> 9ae8cca0b4de7047d852c8827df89b8ab6964c2b
 
     # Inner loops that steps trough each modification in the current commit
     for m in commit.modifications:
