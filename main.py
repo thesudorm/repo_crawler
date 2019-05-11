@@ -83,8 +83,8 @@ SRC_FILES = ["c", "cpp", "java"]
 current_dir = os.path.dirname(os.path.abspath(__file__))
 data_dir = os.path.dirname(os.path.abspath(__file__)) + "/data"
 
-if not os.path.exists(current_dir):
-    os.makedirs(current_dir)
+if not os.path.exists(data_dir):
+    os.makedirs(data_dir)
 
 # Variables for tracking entire project
 counter                 = 0
@@ -99,6 +99,9 @@ prj_func_snake_case     = 0
 prj_lines_tabs_indent   = 0
 prj_lines_space_indent  = 0
 prj_lines_mixed_indent  = 0
+
+commit_lines_added = 0
+commit_lines_deleted = 0
 
 gr = GitRepository(git_repo)
 
@@ -124,8 +127,8 @@ for commit in RepositoryMining(git_repo).traverse_commits():
         file_extention = IsSourceFile(m.filename)
         if file_extention is not None:
 
-            added_file_name = data_dir + "/added." + file_extention
-            deleted_file_name = data_dir + "/deleted." + file_extention
+            added_file_name = data_dir + "/" + str(counter) + "_added." + file_extention
+            deleted_file_name = data_dir + "/" + str(counter) + "_deleted." + file_extention
             print(m.filename)
 
             temp = open(added_file_name, 'w')
