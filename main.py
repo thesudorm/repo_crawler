@@ -13,11 +13,11 @@ from config import git_repo
 
 #Takes a file name as an input and determines if it is a source file or not
 def IsSourceFile(filename):
-    is_src = False
+    is_src = None
     if(filename.find(".") >= 0):
         file_extention = m.filename.split(".")[1]
         if file_extention in SRC_FILES:
-            is_src = True
+            is_src = file_extention
     return is_src
 
 # get srcML of file
@@ -80,9 +80,8 @@ def CountLeadingTabs(s):
 SRC_FILES = ["c", "cpp", "java"]
 
 # Creating files and directories
-current_dir = os.path.dirname(os.path.abspath(__file__)) + "/data"
-added_file_name = current_dir + "/added.c"
-deleted_file_name = current_dir + "/deleted.c"
+current_dir = os.path.dirname(os.path.abspath(__file__))
+data_dir = os.path.dirname(os.path.abspath(__file__)) + "/data"
 
 if not os.path.exists(current_dir):
     os.makedirs(current_dir)
@@ -122,7 +121,11 @@ for commit in RepositoryMining(git_repo).traverse_commits():
 
     # Inner loops that steps trough each modification in the current commit
     for m in commit.modifications:
-        if IsSourceFile(m.filename): 
+        file_extention = IsSourceFile(m.filename)
+        if file_extention is not None:
+
+            added_file_name = data_dir + "/added." + file_extention
+            deleted_file_name = data_dir + "/deleted." + file_extention
             print(m.filename)
 
             temp = open(added_file_name, 'w')
@@ -199,9 +202,9 @@ for commit in RepositoryMining(git_repo).traverse_commits():
             for deleted in deleted_func_names:
                 prj_num_of_func -= 1
 
-                if IsCamelCase(added):
+                if IsCamelCase(deleted):
                     prj_func_camel_case -= 1
-                elif IsSnakeCase(added):
+                elif IsSnakeCase(deleted):
                     prj_func_snake_case -= 1
 
             for added in added_variable_names:
@@ -220,19 +223,17 @@ for commit in RepositoryMining(git_repo).traverse_commits():
                 elif IsSnakeCase(deleted):
                     prj_var_snake_case -= 1
 
-
+    print()
     print("LOC: " + str(prj_num_of_lines))
     if(prj_num_of_lines > 0):
         print("Average Line Length: " + str(prj_total_line_length / prj_num_of_lines))
-    print("Number of Variables: ", prj_num_of_vars)
-    print("Number of Snake Case Vars: ", prj_var_snake_case)
-    print("Number of Camel Case Vars: ", prj_var_camel_case)
     print("Number of Lines Indented With Tabs: ", prj_lines_tabs_indent)
     print("Number of Lines Indented With Spaces: ", prj_lines_space_indent)
     print("Number of Lines With Mixed Indent: ", prj_lines_mixed_indent)
+    print("Number of Variables: ", prj_num_of_vars)
+    print("Number of Snake Case Vars: ", prj_var_snake_case)
+    print("Number of Camel Case Vars: ", prj_var_camel_case)
     print("Number of Functions: ", prj_num_of_func)
-    print("Added Functions:", added_func_names)
-    print("Deleted Functions:", deleted_func_names)
     print("Number of Snake Case Funcs: ", prj_func_snake_case)
     print("Number of Camel Case Funcs: ", prj_func_camel_case)
     print()
