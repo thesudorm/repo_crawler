@@ -43,6 +43,23 @@ def GetVariableNamesFromSRCML(xml_string):
                             toReturn.append(y.nodeValue)
     return toReturn
 
+def GetFunctionNamesFromSRCML(xml_string):
+    toReturn = []
+
+    xml = minidom.parseString(xml_string)
+
+    unit = xml.documentElement
+    functions = unit.getElementsByTagName("function")
+
+    for func in functions:
+        for child in func.childNodes:
+            if(child.nodeType != child.TEXT_NODE):
+                if(child.tagName == 'name'):
+                    for y in child.childNodes: # get variable name
+                        if(y.nodeValue != None):
+                            toReturn.append(y.nodeValue)
+    return toReturn
+
 # Determines if a string is in camelCase or not
 def IsCamelCase(s):
     return s != s.lower() and s != s.upper() and "_" not in s and s[0] != s[0].upper()
@@ -71,12 +88,15 @@ if not os.path.exists(current_dir):
     os.makedirs(current_dir)
 
 # Variables for tracking entire project
-counter = 0
+counter                 = 0
 prj_num_of_lines        = 0
 prj_num_of_vars         = 0
+prj_num_of_func         = 0
 prj_total_line_length   = 0
-prj_camel_case          = 0
-prj_snake_case          = 0
+prj_var_camel_case      = 0
+prj_var_snake_case      = 0
+prj_func_camel_case     = 0
+prj_func_snake_case     = 0
 prj_lines_tabs_indent   = 0
 prj_lines_space_indent  = 0
 prj_lines_mixed_indent  = 0
@@ -165,36 +185,54 @@ for commit in RepositoryMining(git_repo).traverse_commits():
             added_variable_names = GetVariableNamesFromSRCML(added_xml)
             deleted_variable_names = GetVariableNamesFromSRCML(deleted_xml)
 
-            for added in added_variable_names:
-                prj_num_of_vars += 1
-                print("Added:", added)
+            added_func_names = GetFunctionNamesFromSRCML(added_xml)
+            deleted_func_names = GetFunctionNamesFromSRCML(deleted_xml)
+
+            for added in added_func_names:
+                prj_num_of_func += 1
 
                 if IsCamelCase(added):
-                    prj_camel_case += 1
-                    print("Camel: " + added)
+                    prj_func_camel_case += 1
                 elif IsSnakeCase(added):
-                    prj_snake_case += 1
-                    print("Snake: " + added)
+                    prj_func_snake_case += 1
+
+            for deleted in deleted_func_names:
+                prj_num_of_func -= 1
+
+                if IsCamelCase(added):
+                    prj_func_camel_case -= 1
+                elif IsSnakeCase(added):
+                    prj_func_snake_case -= 1
+
+            for added in added_variable_names:
+                prj_num_of_vars += 1
+
+                if IsCamelCase(added):
+                    prj_var_camel_case += 1
+                elif IsSnakeCase(added):
+                    prj_var_snake_case += 1
 
             for deleted in deleted_variable_names:
                 prj_num_of_vars -= 1
-                print("Deleted:", deleted)
 
                 if IsCamelCase(deleted):
-                    prj_camel_case -= 1
-                    print("Camel: " + deleted)
+                    prj_var_camel_case -= 1
                 elif IsSnakeCase(deleted):
-                    prj_snake_case -= 1
-                    print("Snake: " + deleted)
+                    prj_var_snake_case -= 1
 
 
     print("LOC: " + str(prj_num_of_lines))
     if(prj_num_of_lines > 0):
         print("Average Line Length: " + str(prj_total_line_length / prj_num_of_lines))
     print("Number of Variables: ", prj_num_of_vars)
-    print("Number of Snake Case Vars: ", prj_snake_case)
-    print("Number of Camel Case Vars: ", prj_camel_case)
+    print("Number of Snake Case Vars: ", prj_var_snake_case)
+    print("Number of Camel Case Vars: ", prj_var_camel_case)
     print("Number of Lines Indented With Tabs: ", prj_lines_tabs_indent)
     print("Number of Lines Indented With Spaces: ", prj_lines_space_indent)
     print("Number of Lines With Mixed Indent: ", prj_lines_mixed_indent)
+    print("Number of Functions: ", prj_num_of_func)
+    print("Added Functions:", added_func_names)
+    print("Deleted Functions:", deleted_func_names)
+    print("Number of Snake Case Funcs: ", prj_func_snake_case)
+    print("Number of Camel Case Funcs: ", prj_func_camel_case)
     print()
