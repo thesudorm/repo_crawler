@@ -105,12 +105,15 @@ commit_lines_deleted = 0
 
 gr = GitRepository(git_repo)
 
+# Print Header for data
+print("Commit,LOC,Avg Line Length,Lines Indented Tabs,Lines Indeneted Spaces,Lines Mixed Indent,Num Variables,Snake Vars,Camel Vars,Num Funcs,Snake Funcs,Camel Funcs")
+
 # Outer loop that steps through commits
 for commit in RepositoryMining(git_repo).traverse_commits():
     counter = counter + 1
-    print('~~~~~~~~~~~~~~~~~~~~~~~~~~')
-    print("Commit " + str(counter))
-    print("Hash " + commit.hash + '\n')
+    #print('~~~~~~~~~~~~~~~~~~~~~~~~~~')
+    #print("Commit " + str(counter))
+    #print("Hash " + commit.hash + '\n')
 
     added_source_code       = ''
     deleted_source_code     = ''
@@ -129,7 +132,7 @@ for commit in RepositoryMining(git_repo).traverse_commits():
 
             added_file_name = data_dir + "/" + str(counter) + "_added." + file_extention
             deleted_file_name = data_dir + "/" + str(counter) + "_deleted." + file_extention
-            print(m.filename)
+            #print(m.filename)
 
             temp = open(added_file_name, 'w')
             temp.close()
@@ -226,17 +229,21 @@ for commit in RepositoryMining(git_repo).traverse_commits():
                 elif IsSnakeCase(deleted):
                     prj_var_snake_case -= 1
 
-    print()
-    print("LOC: " + str(prj_num_of_lines))
+    #String to print
+    output = str(counter) + ","
+    output += str(prj_num_of_lines) + ","
     if(prj_num_of_lines > 0):
-        print("Average Line Length: " + str(prj_total_line_length / prj_num_of_lines))
-    print("Number of Lines Indented With Tabs: ", prj_lines_tabs_indent)
-    print("Number of Lines Indented With Spaces: ", prj_lines_space_indent)
-    print("Number of Lines With Mixed Indent: ", prj_lines_mixed_indent)
-    print("Number of Variables: ", prj_num_of_vars)
-    print("Number of Snake Case Vars: ", prj_var_snake_case)
-    print("Number of Camel Case Vars: ", prj_var_camel_case)
-    print("Number of Functions: ", prj_num_of_func)
-    print("Number of Snake Case Funcs: ", prj_func_snake_case)
-    print("Number of Camel Case Funcs: ", prj_func_camel_case)
-    print()
+        output += str(prj_total_line_length / prj_num_of_lines) + ","
+    else:
+        output += "0,"
+    output += (str(prj_lines_tabs_indent)) + ","
+    output += (str(prj_lines_space_indent)) + ","
+    output += (str(prj_lines_mixed_indent)) + ","
+    output += (str(prj_num_of_vars)) + ","
+    output += (str(prj_var_snake_case)) + ","
+    output += (str(prj_var_camel_case)) + ","
+    output += (str(prj_num_of_func)) + ","
+    output += (str(prj_func_snake_case)) + ","
+    output += (str(prj_func_camel_case)) + ","
+
+    print(output)

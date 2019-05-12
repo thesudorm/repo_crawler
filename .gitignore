@@ -4,3 +4,4 @@ __pycache__
 added.c
 deleted.c
 data/
+*.csv
