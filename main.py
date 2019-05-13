@@ -99,6 +99,11 @@ prj_func_snake_case     = 0
 prj_lines_tabs_indent   = 0
 prj_lines_space_indent  = 0
 prj_lines_mixed_indent  = 0
+prj_alone_brace         = 0
+prj_space_brace         = 0
+prj_no_space_brace      = 0
+prj_tabbed_brace        = 0
+prj_unknown_brace       = 0
 
 commit_lines_added = 0
 commit_lines_deleted = 0
@@ -106,7 +111,7 @@ commit_lines_deleted = 0
 gr = GitRepository(git_repo)
 
 # Print Header for data
-print("Commit,LOC,Avg Line Length,Lines Indented Tabs,Lines Indeneted Spaces,Lines Mixed Indent,Num Variables,Snake Vars,Camel Vars,Num Funcs,Snake Funcs,Camel Funcs")
+print("Commit,LOC,Avg Line Length,Lines Indented Tabs,Lines Indeneted Spaces,Lines Mixed Indent,Num Variables,Snake Vars,Camel Vars,Num Funcs,Snake Funcs,Camel Funcs,Alone Brace,Space Brace,No Space Brace,Tabbed Brace,Unknown Brace")
 
 # Outer loop that steps through commits
 for commit in RepositoryMining(git_repo).traverse_commits():
@@ -166,6 +171,20 @@ for commit in RepositoryMining(git_repo).traverse_commits():
                     added_file.write(x[1])
                     added_file.write('\n')
 
+                    index_of_brace = x[1].find('{')
+                    
+                    if(index_of_brace != -1):
+                        if(x[1].strip() == '{'): # Standalone brace
+                            prj_alone_brace += 1
+                        elif(x[1][index_of_brace - 1] == " " and x[1][index_of_brace - 2] != '('):
+                            prj_space_brace += 1
+                        elif(x[1][index_of_brace - 1] != " " and x[1][index_of_brace - 1] != "\t"):
+                            prj_no_space_brace += 1
+                        elif(x[1][index_of_brace - 1] == "\t"):
+                            prj_tabbed_brace += 1
+                        else:
+                            prj_unknown_brace += 1
+                        
             for x in deleted:
                 if(x[1] != ''):
                     # Determine indentation
@@ -183,6 +202,20 @@ for commit in RepositoryMining(git_repo).traverse_commits():
                     prj_total_line_length -= len(x[1])
                     deleted_file.write(x[1])
                     deleted_file.write('\n')
+
+                    index_of_brace = x[1].find('{')
+                    
+                    if(index_of_brace != -1):
+                        if(x[1].strip() == '{'): # Standalone brace
+                            prj_alone_brace -= 1
+                        elif(x[1][index_of_brace - 1] == " " and x[1][index_of_brace - 2] != '('):
+                            prj_space_brace -= 1
+                        elif(x[1][index_of_brace - 1] != " " and x[1][index_of_brace - 1] != "\t"):
+                            prj_no_space_brace -= 1
+                        elif(x[1][index_of_brace - 1] == "\t"):
+                            prj_tabbed_brace -= 1
+                        else:
+                            prj_unknown_brace -= 1
 
             added_file.close()
             deleted_file.close()
@@ -245,5 +278,9 @@ for commit in RepositoryMining(git_repo).traverse_commits():
     output += (str(prj_num_of_func)) + ","
     output += (str(prj_func_snake_case)) + ","
     output += (str(prj_func_camel_case)) + ","
-
+    output += (str(prj_alone_brace))  + ","
+    output += (str(prj_space_brace))  + ","
+    output += (str(prj_no_space_brace))  + ","
+    output += (str(prj_tabbed_brace))  + ","
+    output += (str(prj_unknown_brace)) 
     print(output)
