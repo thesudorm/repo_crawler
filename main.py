@@ -244,6 +244,6 @@ for commit in RepositoryMining(git_repo).traverse_commits():
     output += (str(prj_var_camel_case)) + ","
     output += (str(prj_num_of_func)) + ","
     output += (str(prj_func_snake_case)) + ","
-    output += (str(prj_func_camel_case)) + ","
+    output += (str(prj_func_camel_case))
 
     print(output)
