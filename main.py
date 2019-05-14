@@ -182,7 +182,7 @@ for commit in RepositoryMining(git_repo).traverse_commits():
                             prj_lines_tabs_indent = 0
                     elif(num_leading_spaces > 0 and num_leading_tabs > 0):
                         prj_lines_mixed_indent -= 1
-                        if prj_lines_mixed_indent < 0
+                        if prj_lines_mixed_indent < 0:
                             prj_lines_mixed_indent = 0
 
                     prj_num_of_lines -= 1
