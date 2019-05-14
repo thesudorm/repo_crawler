@@ -77,7 +77,7 @@ def CountLeadingTabs(s):
 ## MAIN ###
 
 # CONSTANTS
-SRC_FILES = ["c", "cpp", "java", "cs"]
+SRC_FILES = ["c", "cpp", "cc", "cs"]
 
 # Creating files and directories
 current_dir = os.path.dirname(os.path.abspath(__file__))
