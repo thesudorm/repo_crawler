@@ -210,8 +210,12 @@ for commit in RepositoryMining(git_repo).traverse_commits():
 
                 if IsCamelCase(deleted):
                     prj_func_camel_case -= 1
+                    if prj_func_camel_case < 0:
+                        prj_func_camel_case = 0
                 elif IsSnakeCase(deleted):
                     prj_func_snake_case -= 1
+                    if prj_func_snake_case < 0:
+                        prj_func_snake_case = 0
 
             for added in added_variable_names:
                 prj_num_of_vars += 1
@@ -226,8 +230,12 @@ for commit in RepositoryMining(git_repo).traverse_commits():
 
                 if IsCamelCase(deleted):
                     prj_var_camel_case -= 1
+                    if prj_var_camel_case < 0:
+                        prj_var_camel_case = 0
                 elif IsSnakeCase(deleted):
                     prj_var_snake_case -= 1
+                    if prj_var_snake_case < 0:
+                        prj_var_snake_case = 0
 
     #String to print
     output = str(counter) + ","
