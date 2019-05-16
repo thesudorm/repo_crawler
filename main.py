@@ -77,7 +77,7 @@ def CountLeadingTabs(s):
 ## MAIN ###
 
 # CONSTANTS
-SRC_FILES = ["c", "cpp", "java"]
+SRC_FILES = ["c", "cpp", "cc", "cs"]
 
 # Creating files and directories
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -192,14 +192,24 @@ for commit in RepositoryMining(git_repo).traverse_commits():
                     num_leading_tabs   = CountLeadingTabs(x[1])
 
                     if(num_leading_spaces > 0 and num_leading_tabs == 0):
-                        prj_lines_space_indent -= 1 
+                        prj_lines_space_indent -= 1
+                        if prj_lines_space_indent < 0:
+                            prj_lines_space_indent = 0
                     elif(num_leading_spaces == 0 and num_leading_tabs > 0):
                         prj_lines_tabs_indent -= 1 
+                        if prj_lines_tabs_indent < 0:
+                            prj_lines_tabs_indent = 0
                     elif(num_leading_spaces > 0 and num_leading_tabs > 0):
                         prj_lines_mixed_indent -= 1
+                        if prj_lines_mixed_indent < 0:
+                            prj_lines_mixed_indent = 0
 
                     prj_num_of_lines -= 1
+                    if prj_num_of_lines < 0:
+                        prj_num_of_lines = 0
                     prj_total_line_length -= len(x[1])
+                    if prj_total_line_length < 0:
+                        prj_total_line_length = 0
                     deleted_file.write(x[1])
                     deleted_file.write('\n')
 
@@ -240,11 +250,17 @@ for commit in RepositoryMining(git_repo).traverse_commits():
 
             for deleted in deleted_func_names:
                 prj_num_of_func -= 1
+                if prj_num_of_func < 0:
+                    prj_num_of_func = 0
 
                 if IsCamelCase(deleted):
                     prj_func_camel_case -= 1
+                    if prj_func_camel_case < 0:
+                        prj_func_camel_case = 0
                 elif IsSnakeCase(deleted):
                     prj_func_snake_case -= 1
+                    if prj_func_snake_case < 0:
+                        prj_func_snake_case = 0
 
             for added in added_variable_names:
                 prj_num_of_vars += 1
@@ -256,11 +272,17 @@ for commit in RepositoryMining(git_repo).traverse_commits():
 
             for deleted in deleted_variable_names:
                 prj_num_of_vars -= 1
+                if prj_num_of_vars < 0:
+                    prj_num_of_vars = 0
 
                 if IsCamelCase(deleted):
                     prj_var_camel_case -= 1
+                    if prj_var_camel_case < 0:
+                        prj_var_camel_case = 0
                 elif IsSnakeCase(deleted):
                     prj_var_snake_case -= 1
+                    if prj_var_snake_case < 0:
+                        prj_var_snake_case = 0
 
     #String to print
     output = str(counter) + ","
@@ -283,4 +305,5 @@ for commit in RepositoryMining(git_repo).traverse_commits():
     output += (str(prj_no_space_brace))  + ","
     output += (str(prj_tabbed_brace))  + ","
     output += (str(prj_unknown_brace)) 
+
     print(output)
