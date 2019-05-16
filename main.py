@@ -60,11 +60,9 @@ def GetFunctionNamesFromSRCML(xml_string):
                             toReturn.append(y.nodeValue)
     return toReturn
 
-# Determines if a string is in camelCase or not
 def IsCamelCase(s):
     return s != s.lower() and s != s.upper() and "_" not in s and s[0] != s[0].upper()
 
-# Determines if a string is in snake_case or not
 def IsSnakeCase(s):
     return s.find('_') > 0 and s[-1] != '_'
 
@@ -218,14 +216,24 @@ for commit in RepositoryMining(git_repo).traverse_commits():
                     if(index_of_brace != -1):
                         if(x[1].strip() == '{'): # Standalone brace
                             prj_alone_brace -= 1
+                            if prj_alone_brace < 0:
+                                prj_alone_brace = 0
                         elif(x[1][index_of_brace - 1] == " " and x[1][index_of_brace - 2] != '('):
                             prj_space_brace -= 1
+                            if prj_space_brace < 0:
+                                prj_space_brace = 0
                         elif(x[1][index_of_brace - 1] != " " and x[1][index_of_brace - 1] != "\t"):
                             prj_no_space_brace -= 1
+                            if prj_no_space_brace < 0:
+                                prj_no_space_brace = 0
                         elif(x[1][index_of_brace - 1] == "\t"):
                             prj_tabbed_brace -= 1
+                            if prj_tabbed_brace < 0:
+                                prj_tabbed_brace = 0
                         else:
                             prj_unknown_brace -= 1
+                            if prj_unknown_brace < 0:
+                                prj_unknown_brace = 0
 
             added_file.close()
             deleted_file.close()
